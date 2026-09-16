@@ -1,372 +1,611 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Para Mariana - Galaxia de Flores</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; }
-        canvas { display: block; }
-        .hud {
-            position: absolute; top: 7%; left: 50%; transform: translateX(-50%);
-            text-align: center; pointer-events: none; z-index: 10; width: 90%;
-        }
-        .hud h1 { font-size: 2.1rem; color: #ffcc00; margin: 0; letter-spacing: 2px; font-weight: 300; text-shadow: 0 0 20px rgba(255,204,0,0.7); }
-        .hud p  { font-size: 0.82rem; color: #bbb; margin: 5px 0 0 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxia de Flores Amarillas</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
 
-        /* ── Versículo Overlay ── */
-        #verse-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-        #verse-overlay.visible { display: flex; }
-        .verse-backdrop {
-            position: absolute; inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
-        .verse-card {
-            position: relative;
-            max-width: 340px;
-            width: 88%;
-            background: linear-gradient(145deg, #1a1000, #2a1800);
-            border: 1px solid rgba(255,204,0,0.35);
-            border-radius: 20px;
-            padding: 28px 24px 22px;
-            text-align: center;
-            box-shadow: 0 0 40px rgba(255,180,0,0.25), 0 0 80px rgba(255,180,0,0.08);
-            animation: verseIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        @keyframes verseIn {
-            from { transform: scale(0.6); opacity: 0; }
-            to   { transform: scale(1);   opacity: 1; }
-        }
-        .verse-emoji { font-size: 2.6rem; margin-bottom: 12px; display: block; }
-        .verse-text  {
-            font-size: 1rem; color: #ffeaa0; line-height: 1.65;
-            font-style: italic; margin: 0 0 14px;
-        }
-        .verse-ref   { font-size: 0.85rem; color: #ffcc00; font-weight: 600; letter-spacing: 1px; }
-        .verse-close {
-            margin-top: 20px;
-            background: rgba(255,204,0,0.15);
-            border: 1px solid rgba(255,204,0,0.4);
-            color: #ffcc00;
-            padding: 9px 28px;
-            border-radius: 50px;
-            font-size: 0.88rem;
-            cursor: pointer;
-            letter-spacing: 1px;
-            transition: background 0.2s;
-        }
-        .verse-close:hover { background: rgba(255,204,0,0.3); }
-    </style>
+  :root {
+    --bg: #03050f;
+    --bg-soft: #0b1230;
+    --gold: #ffd95f;
+    --gold-2: #f4b400;
+    --cream: #fff7d4;
+    --brown: #4f2a16;
+    --brown-deep: #241108;
+    --sky: #7ad8ff;
+    --pink: #ff9acb;
+    --text: #fff9ec;
+  }
+
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 50% 15%, rgba(82, 103, 210, 0.30), transparent 24%),
+      radial-gradient(circle at 50% 40%, #111834 0%, #090e22 38%, var(--bg) 76%),
+      linear-gradient(180deg, #060a18 0%, var(--bg) 100%);
+  }
+
+  body {
+    position: relative;
+  }
+
+  .screen {
+    position: absolute;
+    inset: 0;
+  }
+
+  .intro {
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 24px;
+    background:
+      radial-gradient(circle at center, rgba(255, 217, 95, 0.08), transparent 22%),
+      linear-gradient(180deg, rgba(3, 5, 14, 0.98), rgba(3, 5, 15, 0.99));
+    transition: opacity 0.9s ease, visibility 0.9s ease;
+  }
+
+  .intro.hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .intro-box {
+    max-width: 760px;
+  }
+
+  .eyebrow {
+    margin: 0 0 12px;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: var(--gold);
+  }
+
+  .title {
+    margin: 0;
+    font-size: clamp(2.9rem, 8vw, 5.9rem);
+    line-height: 0.9;
+    text-shadow: 0 0 24px rgba(255, 217, 95, 0.16);
+  }
+
+  .title span {
+    display: block;
+  }
+
+  .start-button {
+    margin: 28px auto 10px;
+    width: 220px;
+    height: 220px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: transform 0.28s ease;
+  }
+
+  .start-button:hover {
+    transform: scale(1.05);
+  }
+
+  .start-note {
+    margin: 10px 0 0;
+    color: rgba(255, 249, 236, 0.82);
+    font-size: 1rem;
+  }
+
+  .scene {
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+
+  .scene.active {
+    opacity: 1;
+  }
+
+  .stars,
+  .flowers-rain,
+  .sparkles,
+  .love-notes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .nebula::before,
+  .nebula::after {
+    content: "";
+    position: absolute;
+    width: 42vmax;
+    height: 42vmax;
+    border-radius: 50%;
+    filter: blur(44px);
+    opacity: 0.22;
+    animation: drift 14s ease-in-out infinite alternate;
+  }
+
+  .nebula::before {
+    top: -14vmax;
+    left: -12vmax;
+    background: radial-gradient(circle, rgba(255, 154, 203, 0.42), transparent 62%);
+  }
+
+  .nebula::after {
+    right: -14vmax;
+    bottom: -16vmax;
+    background: radial-gradient(circle, rgba(122, 216, 255, 0.32), transparent 62%);
+    animation-duration: 18s;
+  }
+
+  .galaxy {
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    width: min(76vmin, 580px);
+    height: min(76vmin, 580px);
+    transform: translate(-50%, -50%);
+  }
+
+  .glow-ring {
+    position: absolute;
+    inset: 10%;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, rgba(255, 247, 214, 0.16) 0 16%, rgba(255, 217, 95, 0.20) 22%, rgba(255, 154, 203, 0.10) 36%, rgba(122, 216, 255, 0.06) 48%, rgba(0, 0, 0, 0) 70%);
+    animation: pulse 5.5s ease-in-out infinite;
+  }
+
+  .orbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    transform: translate(-50%, -50%);
+  }
+
+  .orbit.o1 { width: 38%; height: 38%; }
+  .orbit.o2 { width: 62%; height: 62%; }
+  .orbit.o3 { width: 84%; height: 84%; }
+
+  .orbit-spin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    animation: spin linear infinite;
+  }
+
+  .orbit-spin.s1 { animation-duration: 10s; }
+  .orbit-spin.s2 { animation-duration: 16s; animation-direction: reverse; }
+  .orbit-spin.s3 { animation-duration: 22s; }
+
+  .planet {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+  }
+
+  .planet.p1 {
+    width: 12px;
+    height: 12px;
+    margin-left: 19%;
+    margin-top: -6px;
+    background: var(--gold);
+    box-shadow: 0 0 18px rgba(255, 217, 95, 0.95);
+  }
+
+  .planet.p2 {
+    width: 10px;
+    height: 10px;
+    margin-left: 31%;
+    margin-top: -5px;
+    background: var(--sky);
+    box-shadow: 0 0 18px rgba(122, 216, 255, 0.95);
+  }
+
+  .planet.p3 {
+    width: 14px;
+    height: 14px;
+    margin-left: 42%;
+    margin-top: -7px;
+    background: var(--pink);
+    box-shadow: 0 0 20px rgba(255, 154, 203, 0.95);
+  }
+
+  .sunflower-scene {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .sunflower-button {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+  }
+
+  .sunflower-button:hover {
+    transform: scale(1.03);
+  }
+
+  .sunflower-button.blooming .sunflower.large {
+    animation: bloomSpin 1s ease;
+  }
+
+  .panel {
+    position: absolute;
+    left: 50%;
+    bottom: 5%;
+    transform: translateX(-50%);
+    width: min(92vw, 660px);
+    padding: 18px 22px;
+    text-align: center;
+    border-radius: 22px;
+    background: rgba(6, 8, 20, 0.38);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(6px);
+  }
+
+  .panel h2 {
+    margin: 0;
+    font-size: clamp(2rem, 5.8vw, 4rem);
+    line-height: 0.95;
+  }
+
+  .panel h2 span {
+    display: block;
+    background: linear-gradient(90deg, #ffffff, var(--gold), var(--cream));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .panel p {
+    margin: 12px auto 0;
+    max-width: 560px;
+    font-size: clamp(0.98rem, 1.9vw, 1.08rem);
+    line-height: 1.6;
+    color: rgba(255, 249, 236, 0.78);
+  }
+
+  .love-note {
+    position: absolute;
+    max-width: 180px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 249, 236, 0.9);
+    font-size: 0.94rem;
+    line-height: 1.3;
+    text-align: center;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(6px);
+    animation: noteFloat 6s ease-in-out infinite;
+  }
+
+  .love-note.n1 { top: 16%; left: 9%; }
+  .love-note.n2 { top: 20%; right: 8%; animation-delay: 1.2s; }
+  .love-note.n3 { bottom: 23%; left: 8%; animation-delay: 2.2s; }
+  .love-note.n4 { bottom: 20%; right: 8%; animation-delay: 3s; }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: #fff;
+    animation: twinkle ease-in-out infinite alternate;
+  }
+
+  .flower-drop {
+    position: absolute;
+    top: -15vh;
+    font-size: 30px;
+    animation: fall linear forwards;
+    filter: drop-shadow(0 0 8px rgba(255, 217, 95, 0.45));
+  }
+
+  .spark {
+    position: absolute;
+    font-size: 16px;
+    animation: float 4s ease-in-out infinite;
+    opacity: 0.78;
+  }
+
+  .s-a { top: 18%; left: 14%; }
+  .s-b { top: 24%; right: 15%; animation-delay: 1s; }
+  .s-c { bottom: 24%; left: 12%; animation-delay: 2s; }
+  .s-d { bottom: 18%; right: 12%; animation-delay: 1.5s; }
+
+  .sunflower {
+    width: 220px;
+    height: 220px;
+    filter: drop-shadow(0 0 18px rgba(255, 217, 95, 0.22));
+  }
+
+  .sunflower.large {
+    width: min(44vmin, 320px);
+    height: min(44vmin, 320px);
+    filter: drop-shadow(0 0 22px rgba(255, 217, 95, 0.18));
+  }
+
+  @keyframes spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  @keyframes twinkle {
+    from { opacity: 0.2; transform: scale(0.75); }
+    to { opacity: 1; transform: scale(1.4); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(0.96); }
+    50% { transform: scale(1.04); }
+  }
+
+  @keyframes drift {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(3vmax, -2vmax, 0); }
+  }
+
+  @keyframes fall {
+    from { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+    15% { opacity: 1; }
+    to { transform: translateY(115vh) rotate(180deg); opacity: 0.92; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(0.95); }
+    50% { transform: translateY(-8px) scale(1.08); }
+  }
+
+  @keyframes noteFloat {
+    0%, 100% { transform: translateY(0px); opacity: 0.78; }
+    50% { transform: translateY(-10px); opacity: 1; }
+  }
+
+  @keyframes bloomSpin {
+    0% { transform: scale(1) rotate(0deg); }
+    35% { transform: scale(1.12) rotate(8deg); }
+    70% { transform: scale(0.98) rotate(-6deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  @media (max-width: 700px) {
+    .start-button,
+    .sunflower {
+      width: 180px;
+      height: 180px;
+    }
+
+    .galaxy {
+      width: 92vw;
+      height: 92vw;
+      top: 39%;
+    }
+
+    .panel {
+      bottom: 4%;
+      padding: 16px 16px;
+    }
+
+    .love-note {
+      max-width: 140px;
+      font-size: 0.82rem;
+      padding: 8px 11px;
+    }
+
+    .love-note.n1 { top: 13%; left: 4%; }
+    .love-note.n2 { top: 15%; right: 4%; }
+    .love-note.n3 { bottom: 29%; left: 4%; }
+    .love-note.n4 { bottom: 28%; right: 4%; }
+  }
+</style>
 </head>
 <body>
-    <div class="hud">
-        <h1>Para Mariana 🌻</h1>
-        <p>Desliza para rotar · Pellizca para zoom · Toca una flor 🌻</p>
+  <section class="screen intro" id="intro">
+    <div class="intro-box">
+      <p class="eyebrow">Feliz d&iacute;a </p>
+      <h1 class="title">
+        <span>Para</span>
+        <span>❤️ADMV❤️</span>
+      </h1>
+      <button class="start-button" id="startButton" aria-label="Iniciar animaci&oacute;n">
+        <svg class="sunflower" viewBox="0 0 200 200" aria-hidden="true">
+          <defs>
+            <radialGradient id="petalFill" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ffe98d"/>
+              <stop offset="70%" stop-color="#ffd037"/>
+              <stop offset="100%" stop-color="#f4b400"/>
+            </radialGradient>
+            <radialGradient id="centerFill" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#6b3d1e"/>
+              <stop offset="100%" stop-color="#2b1409"/>
+            </radialGradient>
+          </defs>
+          <g transform="translate(100 100)">
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(0) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(22.5) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(45) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(67.5) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(90) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(112.5) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(135) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(157.5) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(180) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(202.5) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(225) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(247.5) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(270) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(292.5) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(315) translate(0 -50)"/>
+            <ellipse rx="18" ry="54" fill="url(#petalFill)" stroke="#a66d00" stroke-width="2" transform="rotate(337.5) translate(0 -50)"/>
+            <circle r="40" fill="url(#centerFill)" stroke="#1e0d06" stroke-width="4"/>
+            <circle r="28" fill="none" stroke="#8a592b" stroke-width="6" stroke-dasharray="3 7"/>
+            <circle r="18" fill="none" stroke="#9b6a35" stroke-width="5" stroke-dasharray="2 5"/>
+          </g>
+        </svg>
+      </button>
+      <p class="start-note">Toca para iniciar</p>
+    </div>
+  </section>
+
+  <main class="screen scene" id="scene">
+    <div class="nebula"></div>
+    <div class="stars" id="stars"></div>
+    <div class="flowers-rain" id="flowersRain"></div>
+    <div class="love-notes">
+      <div class="love-note n1">Eres mi lugar favorito</div>
+      <div class="love-note n2">Contigo todo brilla m&aacute;s</div>
+      <div class="love-note n3">Tu sonrisa es mi galaxia</div>
+      <div class="love-note n4">Te elegir&iacute;a mil veces</div>
+    </div>
+    <div class="sparkles">
+      <div class="spark s-a">&#10024;</div>
+      <div class="spark s-b">&#127803;</div>
+      <div class="spark s-c">&#128155;</div>
+      <div class="spark s-d">&#11088;</div>
     </div>
 
-    <!-- Versículo overlay -->
-    <div id="verse-overlay">
-        <div class="verse-backdrop" onclick="closeVerse()"></div>
-        <div class="verse-card">
-            <span class="verse-emoji" id="vEmoji">🌻</span>
-            <p class="verse-text" id="vText"></p>
-            <div class="verse-ref" id="vRef"></div>
-            <br>
-            <button class="verse-close" onclick="closeVerse()">Amén ✨</button>
-        </div>
+    <div class="galaxy">
+      <div class="glow-ring"></div>
+      <div class="orbit o1"></div>
+      <div class="orbit o2"></div>
+      <div class="orbit o3"></div>
+      <div class="orbit-spin s1"><div class="planet p1"></div></div>
+      <div class="orbit-spin s2"><div class="planet p2"></div></div>
+      <div class="orbit-spin s3"><div class="planet p3"></div></div>
+      <div class="sunflower-scene">
+        <button class="sunflower-button" id="sceneFlower" aria-label="Mover girasol">
+          <svg class="sunflower large" viewBox="0 0 200 200" aria-hidden="true">
+            <defs>
+              <radialGradient id="petalFillScene" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#fff1a8"/>
+                <stop offset="70%" stop-color="#ffd037"/>
+                <stop offset="100%" stop-color="#f4b400"/>
+              </radialGradient>
+              <radialGradient id="centerFillScene" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#6b3d1e"/>
+                <stop offset="100%" stop-color="#2b1409"/>
+              </radialGradient>
+            </defs>
+            <g transform="translate(100 100)">
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(0) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(22.5) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(45) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(67.5) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(90) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(112.5) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(135) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(157.5) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(180) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(202.5) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(225) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(247.5) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(270) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(292.5) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(315) translate(0 -50)"/>
+              <ellipse rx="18" ry="54" fill="url(#petalFillScene)" stroke="#a66d00" stroke-width="2" transform="rotate(337.5) translate(0 -50)"/>
+              <circle r="40" fill="url(#centerFillScene)" stroke="#1e0d06" stroke-width="4"/>
+              <circle r="28" fill="none" stroke="#8a592b" stroke-width="6" stroke-dasharray="3 7"/>
+              <circle r="18" fill="none" stroke="#9b6a35" stroke-width="5" stroke-dasharray="2 5"/>
+            </g>
+          </svg>
+        </button>
+      </div>
     </div>
 
-    <canvas id="gc"></canvas>
-    <script>
-    'use strict';
-    // ─── Versículos ───────────────────────────────────────────────────────────────
-    const VERSES = [
-        { text: "Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna.", ref: "Juan 3:16", emoji: "✝️" },
-        { text: "Amarás al Señor tu Dios con todo tu corazón, con toda tu alma y con toda tu mente.", ref: "Mateo 22:37", emoji: "❤️" },
-        { text: "Dios es amor; y el que permanece en amor, permanece en Dios, y Dios en él.", ref: "1 Juan 4:16", emoji: "🌟" },
-        { text: "Nosotros le amamos a él, porque él nos amó primero.", ref: "1 Juan 4:19", emoji: "💛" },
-        { text: "El amor es sufrido, es benigno; el amor no tiene envidia, no se jacta, no se envanece.", ref: "1 Corintios 13:4", emoji: "🌻" },
-        { text: "Todo lo sufre, todo lo cree, todo lo espera, todo lo soporta. El amor nunca deja de ser.", ref: "1 Corintios 13:7-8", emoji: "♾️" },
-        { text: "Ahora permanecen la fe, la esperanza y el amor, estos tres; pero el mayor de ellos es el amor.", ref: "1 Corintios 13:13", emoji: "🌼" },
-        { text: "El que no ama, no ha conocido a Dios; porque Dios es amor.", ref: "1 Juan 4:8", emoji: "💫" },
-        { text: "Sean benignos y misericordiosos el uno con el otro, perdonándose mutuamente como Dios también os perdonó en Cristo.", ref: "Efesios 4:32", emoji: "🤍" },
-        { text: "Sobre todo, vestíos de amor, que es el vínculo perfecto de la unidad.", ref: "Colosenses 3:14", emoji: "🌻" },
-        { text: "Maridos, amad a vuestras mujeres, así como Cristo amó a la iglesia y se entregó a sí mismo por ella.", ref: "Efesios 5:25", emoji: "💍" },
-        { text: "¡Cuán dulces son a mi paladar tus palabras! ¡Más que la miel a mi boca!", ref: "Salmo 119:103", emoji: "🍯" },
-        { text: "Encomienda al Señor tu camino; confía en él, y él actuará.", ref: "Salmo 37:5", emoji: "✨" },
-        { text: "Yo soy de mi amado, y mi amado es mío.", ref: "Cantares 6:3", emoji: "🌺" },
-        { text: "Me mostró amor y a él me uní para siempre, como palmera plantada junto a corrientes de agua.", ref: "Cantares 3:4", emoji: "🌿" },
-        { text: "Poned la mira en las cosas de arriba, no en las de la tierra.", ref: "Colosenses 3:2", emoji: "⭐" },
-        { text: "El amor perfecto echa fuera el temor.", ref: "1 Juan 4:18", emoji: "🕊️" },
-        { text: "Hijo mío, que el amor y la fidelidad nunca te abandonen; átalos a tu cuello y escríbelos en la tablilla de tu corazón.", ref: "Proverbios 3:3", emoji: "💛" },
-        { text: "Alegráos con la esposa de vuestra juventud. Déjate cautivar siempre por su amor.", ref: "Proverbios 5:18-19", emoji: "🌻" },
-        { text: "Nadie tiene mayor amor que este: que uno ponga su vida por sus amigos.", ref: "Juan 15:13", emoji: "🌹" }
-    ];
+    <section class="panel">
+      <p class="eyebrow">Mi lugar favorito siempre será contigo</p>
+      <h2>
+        <span>Bebesita</span>
+        <span>Te elegiría en esta y en todas las vidas</span>
+      </h2>
+      <p>
+       Mis ojitos bonitos
+      </p>
+    </section>
+  </main>
 
-    // ─── Verse DOM ────────────────────────────────────────────────────────────────
-    const overlay   = document.getElementById('verse-overlay');
-    const vText     = document.getElementById('vText');
-    const vRef      = document.getElementById('vRef');
-    const vEmoji    = document.getElementById('vEmoji');
-    let verseOpen   = false;
-    let lastVerseIdx = -1;
+<script>
+  const intro = document.getElementById('intro');
+  const scene = document.getElementById('scene');
+  const startButton = document.getElementById('startButton');
+  const sceneFlower = document.getElementById('sceneFlower');
+  const stars = document.getElementById('stars');
+  const flowersRain = document.getElementById('flowersRain');
 
-    function showVerse() {
-        // Elegir versículo diferente al anterior
-        let idx;
-        do { idx = Math.floor(Math.random() * VERSES.length); } while (idx === lastVerseIdx);
-        lastVerseIdx = idx;
-        const v = VERSES[idx];
-        vText.textContent  = `"${v.text}"`;
-        vRef.textContent   = v.ref;
-        vEmoji.textContent = v.emoji;
-        overlay.classList.add('visible');
-        verseOpen = true;
+  const totalStars = window.innerWidth < 700 ? 90 : 170;
+  for (let i = 0; i < totalStars; i++) {
+    const star = document.createElement('div');
+    const size = Math.random() * 3 + 1;
+    star.className = 'star';
+    star.style.width = size + 'px';
+    star.style.height = size + 'px';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+    star.style.boxShadow = '0 0 ' + (Math.random() * 8 + 4) + 'px rgba(255,255,255,0.92)';
+    stars.appendChild(star);
+  }
+
+  function createFlower() {
+    const flower = document.createElement('div');
+    flower.className = 'flower-drop';
+    flower.innerHTML = Math.random() > 0.25 ? '&#127803;' : '&#10024;';
+    flower.style.left = Math.random() * 100 + 'vw';
+    flower.style.animationDuration = (Math.random() * 4 + 5) + 's';
+    flower.style.fontSize = (Math.random() * 16 + 20) + 'px';
+    flowersRain.appendChild(flower);
+
+    setTimeout(() => {
+      flower.remove();
+    }, 9500);
+  }
+
+  let flowerInterval = null;
+
+  function startScene() {
+    intro.classList.add('hidden');
+    scene.classList.add('active');
+    if (!flowerInterval) {
+      flowerInterval = setInterval(createFlower, 240);
     }
-    function closeVerse() {
-        overlay.classList.remove('visible');
-        verseOpen = false;
+  }
+
+  startButton.addEventListener('click', startScene);
+
+  sceneFlower.addEventListener('click', () => {
+    sceneFlower.classList.remove('blooming');
+    void sceneFlower.offsetWidth;
+    sceneFlower.classList.add('blooming');
+
+    for (let i = 0; i < 8; i++) {
+      setTimeout(createFlower, i * 90);
     }
-
-    // ─── Canvas ───────────────────────────────────────────────────────────────────
-    const canvas = document.getElementById('gc');
-    const ctx    = canvas.getContext('2d', { alpha: false });
-    let W = 0, H = 0;
-
-    function resize() {
-        W = canvas.width  = window.innerWidth;
-        H = canvas.height = window.innerHeight;
-        ctx.fillStyle = '#050505';
-        ctx.fillRect(0, 0, W, H);
-    }
-    window.addEventListener('resize', resize);
-    window.addEventListener('orientationchange', () => setTimeout(resize, 150));
-    resize();
-
-    // ─── Partículas ───────────────────────────────────────────────────────────────
-    const N    = 900;
-    const ARMS = 5;
-    const MSGS = ["Eres pura alegría","Luz en mi vida","Alegras mis días","Flores para ti","Eres muy especial","Atesoro tu compañía","Sonríe siempre"];
-    const EMOJ = ["🌻","🌻","🌼","✨","🌻","🌼"];
-
-    const TYPE_STAR   = 0;
-    const TYPE_FLOWER = 1;
-    const TYPE_TEXT   = 2;
-
-    const px    = new Float32Array(N);
-    const py    = new Float32Array(N);
-    const pz    = new Float32Array(N);
-    const pix   = new Float32Array(N);
-    const piy   = new Float32Array(N);
-    const piz   = new Float32Array(N);
-    const siz   = new Float32Array(N);
-    const typ   = new Uint8Array(N);
-    const cr    = new Uint8Array(N);
-    const cg    = new Uint8Array(N);
-    const cb    = new Uint8Array(N);
-    const cont  = new Array(N);
-
-    // screenX/Y guardados para hit-test (solo TYPE_FLOWER)
-    const scx = new Float32Array(N);
-    const scy = new Float32Array(N);
-    const scr = new Float32Array(N); // radio en pantalla
-
-    for (let i = 0; i < N; i++) {
-        const radius     = Math.random() * 900;
-        const arm        = (i % ARMS) * ((Math.PI * 2) / ARMS);
-        const angle      = arm + radius * 0.005 + (Math.random() - 0.5) * (1100 / (radius + 10));
-        px[i] = Math.cos(angle) * radius;
-        py[i] = Math.sin(angle) * radius;
-        pz[i] = (Math.random() - 0.5) * 100;
-
-        if (i % 55 === 0) {
-            typ[i] = TYPE_TEXT;   siz[i] = 15; cont[i] = MSGS[i % MSGS.length];
-        } else if (i % 4 !== 0) {
-            typ[i] = TYPE_STAR;   siz[i] = Math.random() * 2 + 0.3;
-        } else {
-            typ[i] = TYPE_FLOWER; siz[i] = Math.random() * 16 + 8;
-            cont[i] = EMOJ[Math.floor(Math.random() * EMOJ.length)];
-        }
-
-        // HSL → RGB pre-calculado
-        const hue = 45 + Math.random() * 15;
-        const lit = (60 + Math.random() * 40) / 100;
-        const a_  = Math.min(lit, 1 - lit);
-        const fn  = n => { const k = (n + hue / 30) % 12; return Math.round((lit - a_ * Math.max(-1, Math.min(k - 3, Math.min(9 - k, 1)))) * 255); };
-        cr[i] = fn(0); cg[i] = fn(8); cb[i] = fn(4);
-    }
-
-    // ─── Cámara ───────────────────────────────────────────────────────────────────
-    let rotT = 0, rotC = 0, pitT = 1.1, pitC = 1.1, zoom = 400;
-    const FOV = 600;
-
-    // ─── Hit-test (tap sobre flor) ───────────────────────────────────────────────
-    function hitTest(tapX, tapY) {
-        let best = -1, bestDist = Infinity;
-        for (let i = 0; i < N; i++) {
-            if (typ[i] !== TYPE_FLOWER) continue;
-            const dx = tapX - scx[i], dy = tapY - scy[i];
-            const d  = Math.sqrt(dx * dx + dy * dy);
-            const hitRadius = Math.max(scr[i] * 1.5, 28); // área touch generosa
-            if (d < hitRadius && d < bestDist) { best = i; bestDist = d; }
-        }
-        return best;
-    }
-
-    // ─── Input ────────────────────────────────────────────────────────────────────
-    let dragging = false, lastX = 0, lastY = 0, pinchBase = null;
-    let tapStartX = 0, tapStartY = 0, tapMoved = false;
-
-    canvas.addEventListener('touchstart', e => {
-        if (verseOpen) return;
-        if (e.touches.length === 2) {
-            dragging = false;
-            pinchBase = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-        } else {
-            tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapMoved = false;
-            dragging = true; lastX = tapStartX; lastY = tapStartY;
-        }
-    }, { passive: true });
-
-    canvas.addEventListener('touchmove', e => {
-        e.preventDefault();
-        if (verseOpen) return;
-        if (e.touches.length === 2 && pinchBase !== null) {
-            const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-            zoom -= (d - pinchBase) * 4;
-            zoom = Math.max(80, Math.min(1800, zoom));
-            pinchBase = d; dragging = false;
-        } else if (e.touches.length === 1 && dragging) {
-            const dx = e.touches[0].clientX - lastX, dy = e.touches[0].clientY - lastY;
-            if (Math.abs(dx) > 4 || Math.abs(dy) > 4) tapMoved = true;
-            rotT -= dx * 0.006;
-            pitT = Math.max(0.15, Math.min(Math.PI - 0.15, pitT - dy * 0.006));
-            lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-        }
-    }, { passive: false });
-
-    canvas.addEventListener('touchend', e => {
-        dragging = false; pinchBase = null;
-        if (!tapMoved && e.changedTouches.length === 1) {
-            const tx = e.changedTouches[0].clientX, ty = e.changedTouches[0].clientY;
-            if (hitTest(tx, ty) !== -1) showVerse();
-        }
-    }, { passive: true });
-
-    // Mouse
-    canvas.addEventListener('mousedown', e => { dragging = true; lastX = e.clientX; lastY = e.clientY; tapMoved = false; tapStartX = e.clientX; tapStartY = e.clientY; });
-    canvas.addEventListener('mousemove', e => {
-        if (!dragging) return;
-        const dx = e.clientX - lastX, dy = e.clientY - lastY;
-        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) tapMoved = true;
-        rotT -= dx * 0.006;
-        pitT = Math.max(0.15, Math.min(Math.PI - 0.15, pitT - dy * 0.006));
-        lastX = e.clientX; lastY = e.clientY;
-    });
-    canvas.addEventListener('mouseup', e => {
-        dragging = false;
-        if (!tapMoved) { if (hitTest(e.clientX, e.clientY) !== -1) showVerse(); }
-    });
-    canvas.addEventListener('mouseleave', () => { dragging = false; });
-    canvas.addEventListener('wheel', e => { zoom = Math.max(80, Math.min(1800, zoom + e.deltaY)); }, { passive: true });
-
-    // ─── Sort ─────────────────────────────────────────────────────────────────────
-    const sortIdx = Array.from({ length: N }, (_, i) => i);
-    function sortByDepth(a, b) { return piz[b] - piz[a]; }
-
-    // ─── Font cache ───────────────────────────────────────────────────────────────
-    let lastFont = '';
-    function setFont(sz, bold) {
-        const f = bold ? `bold ${sz}px Verdana` : `${sz}px Arial`;
-        if (f !== lastFont) { ctx.font = f; lastFont = f; }
-    }
-
-    // ─── Cursor hover ─────────────────────────────────────────────────────────────
-    canvas.addEventListener('mousemove', e => {
-        if (dragging) { canvas.style.cursor = 'grabbing'; return; }
-        canvas.style.cursor = hitTest(e.clientX, e.clientY) !== -1 ? 'pointer' : 'grab';
-    });
-
-    // ─── Render loop ──────────────────────────────────────────────────────────────
-    function frame() {
-        requestAnimationFrame(frame);
-
-        ctx.fillStyle = '#050505';
-        ctx.fillRect(0, 0, W, H);
-
-        rotC += (rotT - rotC) * 0.08;
-        pitC += (pitT - pitC) * 0.08;
-        if (!dragging && pinchBase === null) rotT += 0.0012;
-
-        const cosR = Math.cos(rotC), sinR = Math.sin(rotC);
-        const cosP = Math.cos(pitC), sinP = Math.sin(pitC);
-
-        // Anillo central
-        const rd = FOV / (FOV + zoom);
-        ctx.strokeStyle = 'rgba(255,220,0,0.55)'; ctx.lineWidth = 12 * rd;
-        ctx.beginPath(); ctx.ellipse(W/2, H/2, Math.max(5, 110 * rd), Math.max(5, 110 * rd * Math.abs(cosP)), 0, 0, Math.PI*2); ctx.stroke();
-        ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 3 * rd;
-        ctx.beginPath(); ctx.ellipse(W/2, H/2, Math.max(5, 125 * rd), Math.max(3, 125 * rd * Math.abs(cosP)), 0, 0, Math.PI*2); ctx.stroke();
-
-        // Proyectar
-        for (let i = 0; i < N; i++) {
-            const rx   = px[i] * cosR - py[i] * sinR;
-            const ry1  = px[i] * sinR + py[i] * cosR;
-            pix[i] = rx;
-            piy[i] = ry1 * cosP - pz[i] * sinP;
-            piz[i] = ry1 * sinP + pz[i] * cosP;
-            sortIdx[i] = i;
-        }
-        sortIdx.sort(sortByDepth);
-
-        // Dibujar
-        for (let j = 0; j < N; j++) {
-            const i    = sortIdx[j];
-            const denom = FOV + piz[i] + zoom;
-            if (denom < 10) { scr[i] = 0; continue; }
-            const ds   = FOV / denom;
-            const sx   = W / 2 + pix[i] * ds;
-            const sy   = H / 2 + piy[i] * ds;
-
-            if (sx < -60 || sx > W + 60 || sy < -60 || sy > H + 60) { scr[i] = 0; continue; }
-
-            const t = typ[i];
-            if (t === TYPE_STAR) {
-                const rad = Math.max(0.4, siz[i] * ds);
-                if (rad > 30) continue;
-                ctx.fillStyle = `rgb(${cr[i]},${cg[i]},${cb[i]})`;
-                ctx.beginPath(); ctx.arc(sx, sy, rad, 0, 6.2832); ctx.fill();
-                scr[i] = 0;
-
-            } else if (t === TYPE_FLOWER) {
-                const fs   = Math.max(1, Math.min(80, siz[i] * ds)) | 0;
-                scx[i] = sx; scy[i] = sy; scr[i] = fs * 0.5; // guarda para hit-test
-                setFont(fs, false);
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillText(cont[i], sx, sy);
-
-            } else { // TYPE_TEXT
-                const fs = Math.max(6, Math.min(40, siz[i] * ds)) | 0;
-                setFont(fs, true);
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillText(cont[i], sx + 1, sy + 1);
-                ctx.fillStyle = '#fff'; ctx.fillText(cont[i], sx, sy);
-                scr[i] = 0;
-            }
-        }
-    }
-
-    frame();
-    </script>
+  });
+</script>
 </body>
 </html>
